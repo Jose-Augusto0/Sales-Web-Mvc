@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using SalesWebMvc.Data;
+using SalesWebMvc.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +14,12 @@ builder.Services.AddDbContext<SalesWebMvcContext>(options =>
         mySqlOptions => mySqlOptions.MigrationsAssembly("SalesWebMvc")
     ));
 
-// Adicionando o SeedingService
-builder.Services.AddScoped<SeedingService>();
 
-// Configuração de internacionalização (opcional, mas de acordo com seu exemplo)
+builder.Services.AddScoped<SeedingService>();
+builder.Services.AddScoped<SellerService>();
+
+
+
 var enUS = new CultureInfo("en-US");
 var localizationOptions = new RequestLocalizationOptions
 {
@@ -25,23 +28,22 @@ var localizationOptions = new RequestLocalizationOptions
     SupportedUICultures = new List<CultureInfo> { enUS }
 };
 
-// Add services to the container.
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.UseRequestLocalization(localizationOptions); // Ativando a cultura
+app.UseRequestLocalization(localizationOptions); 
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 
-    // Rodar o serviço de seeding (para popular o banco de dados em ambiente de desenvolvimento)
+    
     using (var scope = app.Services.CreateScope())
     {
         var seedingService = scope.ServiceProvider.GetRequiredService<SeedingService>();
-        seedingService.Seed(); // Chama o método de seed
+        seedingService.Seed(); 
     }
 }
 else
